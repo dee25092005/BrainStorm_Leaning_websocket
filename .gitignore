@@ -1,0 +1,18 @@
+# Secrets
+.env
+*.env
+
+# Go binaries
+backend/bin/
+backend/main
+
+# Flutter / Dart
+flutter/.dart_tool/
+flutter/.packages
+flutter/build/
+flutter/.pub-cache/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
