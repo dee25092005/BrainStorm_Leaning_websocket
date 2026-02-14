@@ -18,6 +18,7 @@ type BrainstormService struct {
 func NewBrainstormService(db *gorm.DB) *BrainstormService {
 	return &BrainstormService{
 		ideas: []models.Idea{},
+		db:    db,
 	}
 }
 
@@ -56,21 +57,24 @@ func (s *BrainstormService) ProcessMessage(msg models.WSMessage) (models.WSMessa
 	case "vote":
 		id := fmt.Sprintf("%v", msg.Payload)
 		var idea models.Idea
-		result := s.db.Model(&idea).Where("id = ?", id).UpdateColumn("votes", gorm.Expr("votes + ?", 1))
 
-		if result.Error != nil {
-			fmt.Printf("Error updating votes for idea %v: %v\n", id, result.Error)
+		// 1. Update the database
+		result := s.db.Model(&idea).Where("id = ?", id).Update("votes", gorm.Expr("votes + ?", 1))
+
+		if result.Error != nil || result.RowsAffected == 0 {
+			fmt.Printf("Vote failed for ID %v: %v\n", id, result.Error)
 			return models.WSMessage{}, false
 		}
 
-		//fetch the updated idea send it back to the clients
+		// 2. Fetch the REAL data into the 'idea' variable
 		s.db.First(&idea, "id = ?", id)
 
-		var updateIdea models.Idea
+		// 3. REMOVE 'var updateIdea models.Idea' (it's empty!)
 
+		// 4. Return the 'idea' variable you just filled with data
 		return models.WSMessage{
 			Type:    "vote_updated",
-			Payload: updateIdea,
+			Payload: idea, // <--- Change this from updateIdea to idea
 		}, true
 
 	case "get_all":
@@ -80,6 +84,33 @@ func (s *BrainstormService) ProcessMessage(msg models.WSMessage) (models.WSMessa
 		return models.WSMessage{
 			Type:    "initial_state",
 			Payload: allIdeas,
+		}, true
+
+	case "delete_idea":
+		var id string
+		if m, ok := msg.Payload.(map[string]interface{}); ok {
+			id = fmt.Sprintf("%v", m["id"])
+		} else {
+			id = fmt.Sprintf("%v", msg.Payload)
+		}
+
+		fmt.Printf("Attemp to delete is ID %s\n", id)
+
+		result := s.db.Unscoped().Delete(&models.Idea{}, "id =?", id)
+
+		if result.Error != nil {
+			fmt.Printf("Gorm error : %v", result.Error)
+			return models.WSMessage{}, false
+		}
+		if result.RowsAffected == 0 {
+			fmt.Printf("Delete failed : no row found with id %s \n", id)
+			return models.WSMessage{}, false
+		}
+
+		fmt.Printf("successfully delete ID : %s\n", id)
+		return models.WSMessage{
+			Type:    "idea_deleted",
+			Payload: id,
 		}, true
 
 	default:

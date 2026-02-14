@@ -18,7 +18,7 @@ class Brainstorm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: true,
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.deepPurple),
       home: const BrainstormScreen(),
     );

@@ -1,16 +1,23 @@
-# frontend_flutter
+# BrainStorm Live
 
-A new Flutter project.
+## Project Goal
+A real-time brainstorming application. Users can post ideas and vote on them. The system uses a Go backend for high-performance data handling and Flutter for a cross-platform, reactive UI.
 
-## Getting Started
+## Current Stage
+### Backend (Go)
+- [x] Core Engine: WebSocket Hub and Client logic implemented.
+- [x] Data Persistence: Full GORM integration with PostgreSQL.
+- [x] Service Layer: Modular BrainstormService for clean business logic.
+- [x] CRUD Operations: Real-time creation, voting, and permanent deletion.
 
-This project is a starting point for a Flutter application.
+### Frontend (Flutter)
+- [x] Reactive UI: Implementation of ImplicitlyAnimatedList for smooth sorting.
+- [x] UX/UI: Custom IdeaCard components with Slide-to-Dismiss functionality.ChangeNotifier.
+- [x] State Management: Provider-driven architecture with WebSocket synchronization.
+- [x] Optimistic UI: Instant local state updates for a "Zero-Lag" feel.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Tech Stack
+- **Language:** Go (Golang), Dart
+- **Framework:** Flutter
+- **State Management:** Provider
+- **Communication:** WebSockets

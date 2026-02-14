@@ -8,9 +8,11 @@ class Idea {
   //factory get from json (go)
   factory Idea.fromJson(Map<String, dynamic> json) {
     return Idea(
-      id: json['id'] ?? '',
-      text: json['text'] ?? '',
-      vote: json['vote'] ?? '',
+      id: json['id']?.toString() ?? '',
+      text: json['text'].toString(),
+      vote: json['votes'] is int
+          ? json['votes']
+          : int.tryParse(json['votes']?.toString() ?? '0') ?? 0,
     );
   }
 }

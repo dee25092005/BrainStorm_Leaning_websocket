@@ -1,15 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_flutter/features/providers/brainstorm_provider.dart';
 import 'package:frontend_flutter/features/widgets/idea_car.dart';
+import 'package:implicitly_animated_reorderable_list_2/implicitly_animated_reorderable_list_2.dart';
 import 'package:provider/provider.dart';
+import 'package:frontend_flutter/features/models/idea.dart';
+import 'package:implicitly_animated_reorderable_list_2/transitions.dart';
 
 class BrainstormScreen extends StatelessWidget {
   const BrainstormScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<BrainstormProvider>();
     return Scaffold(
-      appBar: AppBar(title: const Text('Brainstorming Live!!!')),
+      appBar: AppBar(
+        title: const Text('Brainstorming Live!!!'),
+        actions: [
+          Icon(
+            Icons.circle,
+            color: provider.ideas.isEmpty ? Colors.red : Colors.green,
+            size: 12,
+          ),
+        ],
+      ),
       body: _buildBody(),
       floatingActionButton: _buildFab(context),
     );
@@ -23,11 +36,31 @@ class BrainstormScreen extends StatelessWidget {
         if (provider.ideas.isEmpty) {
           return const Center(child: Text('No idea yet'));
         }
-        return ListView.builder(
-          itemCount: provider.ideas.length,
-
-          itemBuilder: (context, index) =>
-              IdeaCard(idea: provider.ideas[index]),
+        return ImplicitlyAnimatedList<Idea>(
+          items: provider.ideas,
+          areItemsTheSame: (oldItem, newItem) => oldItem.id == newItem.id,
+          itemBuilder: (context, animation, idea, index) {
+            return SizeFadeTransition(
+              curve: Curves.easeInOut,
+              animation: animation,
+              child: Dismissible(
+                key: Key(idea.id),
+                direction: DismissDirection.endToStart,
+                background: Container(
+                  color: Colors.red,
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.only(right: 20),
+                  child: const Icon(Icons.delete, color: Colors.white),
+                ),
+                onDismissed: (direction) =>
+                    context.read<BrainstormProvider>().deleteIdea(idea.id),
+                child: IdeaCard(idea: idea),
+                confirmDismiss: (direction) async {
+                  return await _confirmDelete(context);
+                },
+              ),
+            );
+          },
         );
       },
     );
@@ -67,5 +100,26 @@ class BrainstormScreen extends StatelessWidget {
 
     context.read<BrainstormProvider>().addNewIdea(text);
     Navigator.pop(context);
+  }
+
+  Future<bool?> _confirmDelete(BuildContext context) async {
+    return await showDialog<bool>(
+      context: context,
+      builder: (diagContext) => AlertDialog(
+        // renamed to diagContext to avoid confusion
+        title: const Text("Delete Idea?"),
+        content: const Text("This action cannot be undone."),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(diagContext, false),
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(diagContext, true),
+            child: const Text("Delete", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
   }
 }
