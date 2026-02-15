@@ -15,11 +15,26 @@ class BrainstormScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Brainstorming Live!!!'),
+        centerTitle: true,
+        leading: IconButton(
+          icon: Icons.light_mode == Icons.light_mode
+              ? const Icon(Icons.light_mode)
+              : const Icon(Icons.dark_mode),
+          onPressed: () {
+            context.read<BrainstormProvider>().toggleTheme();
+          },
+        ),
         actions: [
           Icon(
             Icons.circle,
             color: provider.ideas.isEmpty ? Colors.red : Colors.green,
             size: 12,
+          ),
+          const SizedBox(width: 8),
+          IconButton(
+            onPressed: () => provider.connect(),
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Reconnect',
           ),
         ],
       ),
@@ -52,8 +67,22 @@ class BrainstormScreen extends StatelessWidget {
                   padding: const EdgeInsets.only(right: 20),
                   child: const Icon(Icons.delete, color: Colors.white),
                 ),
-                onDismissed: (direction) =>
-                    context.read<BrainstormProvider>().deleteIdea(idea.id),
+                onDismissed: (direction) {
+                  context.read<BrainstormProvider>().deleteIdea(idea.id);
+                  ScaffoldMessenger.of(context).clearSnackBars();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Deleted: "${idea.text}"'),
+                      action: SnackBarAction(
+                        label: 'Undo',
+                        onPressed: () {
+                          context.read<BrainstormProvider>().undoDelete();
+                        },
+                      ),
+                      duration: const Duration(seconds: 4),
+                    ),
+                  );
+                },
                 child: IdeaCard(idea: idea),
                 confirmDismiss: (direction) async {
                   return await _confirmDelete(context);

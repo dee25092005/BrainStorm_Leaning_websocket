@@ -5,17 +5,20 @@ A real-time brainstorming application. Users can post ideas and vote on them. Th
 
 ## Current Stage
 ### Backend (Go)
-- [x] Basic HTTP server setup.
-- [x] WebSocket Hub and Client logic implemented.
-- [x] Environment variable configuration (.env).
-- [x] Database integration (GORM/PostgreSQL) - *Next Priority*.
+- [x] Core Engine: WebSocket Hub and Client logic implemented.
+- [x] Data Persistence: Full GORM integration with PostgreSQL.
+- [x] Service Layer: Modular BrainstormService for clean business logic.
+- [x] CRUD Operations: Real-time creation, voting, and permanent deletion.
 
 ### Frontend (Flutter)
-- [x] Idea model with JSON serialization.
-- [x] State management using Provider and ChangeNotifier.
-- [x] Main screen UI with reactive ListView.
-- [x] Custom IdeaCard component for clean UI.
-- [ ] WebSocket service connection to Go server.
+- [x] Reactive UI: Implementation of ImplicitlyAnimatedList for smooth sorting.
+- [x] UX/UI: Custom IdeaCard components with Slide-to-Dismiss functionality.ChangeNotifier.
+- [x] State Management: Provider-driven architecture with WebSocket synchronization.
+- [x] Optimistic UI: Instant local state updates for a "Zero-Lag" feel.
+
+### How to run
+- Backend: Configure your .env for PostgreSQL and run go run cmd/server/main.go.
+- Frontend: Update your WebSocket URI in the provider and run flutter run.
 
 ## Tech Stack
 - **Language:** Go (Golang), Dart

@@ -10,6 +10,7 @@ class IdeaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 4,
@@ -18,7 +19,14 @@ class IdeaCard extends StatelessWidget {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('${idea.vote}', style: const TextStyle(fontSize: 16)),
+            Text(
+              '${idea.vote}',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.blue[200] : Colors.blue[800],
+              ),
+            ),
             IconButton(
               onPressed: () => _handerVote(context),
               icon: const Icon(Icons.thumb_up, color: Colors.blue),

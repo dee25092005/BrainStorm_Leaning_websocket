@@ -17,9 +17,21 @@ class Brainstorm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<BrainstormProvider>();
     return MaterialApp(
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: Colors.blue,
+        brightness: Brightness.light,
+      ),
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: Colors.blue,
+        brightness: Brightness.dark,
+        cardTheme: const CardThemeData(color: Color(0xFF1E1E1E), elevation: 2),
+      ),
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.deepPurple),
+      themeMode: provider.themeMode,
       home: const BrainstormScreen(),
     );
   }

@@ -2,11 +2,16 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:frontend_flutter/features/models/idea.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'dart:async';
 
 class BrainstormProvider extends ChangeNotifier {
   late WebSocketChannel _channel;
   List<Idea> _ideas = [];
   List<Idea> get ideas => _ideas;
+  Timer? _deleteTimer;
+  Idea? _lastDeletedIdea;
+  int? _lastDeleteIndex;
+  ThemeMode themeMode = ThemeMode.system;
 
   //connect to websocket
   void connect() {
@@ -57,9 +62,35 @@ class BrainstormProvider extends ChangeNotifier {
   }
 
   void deleteIdea(String id) {
-    _ideas.removeWhere((idea) => idea.id == id);
+    _lastDeleteIndex = _ideas.indexWhere((idea) => idea.id == id);
+    if (_lastDeleteIndex == -1) return;
+
+    _lastDeletedIdea = _ideas[_lastDeleteIndex!];
+    _ideas.removeAt(_lastDeleteIndex!);
     notifyListeners();
-    _channel.sink.add(jsonEncode({'type': 'delete_idea', 'payload': id}));
+
+    _deleteTimer?.cancel();
+    _deleteTimer = Timer(const Duration(seconds: 4), () {
+      _channel.sink.add(jsonEncode({'type': 'delete_idea', 'payload': id}));
+      _lastDeletedIdea = null;
+    });
+  }
+
+  void undoDelete() {
+    if (_lastDeletedIdea != null && _lastDeleteIndex != null) {
+      _deleteTimer?.cancel();
+      _ideas.insert(_lastDeleteIndex!, _lastDeletedIdea!);
+      _lastDeletedIdea = null;
+      _lastDeleteIndex = null;
+      notifyListeners();
+    }
+  }
+
+  void toggleTheme() {
+    themeMode = (themeMode == ThemeMode.light)
+        ? ThemeMode.dark
+        : ThemeMode.light;
+    notifyListeners();
   }
 
   void vote(String id) {
